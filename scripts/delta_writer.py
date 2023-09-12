@@ -1,6 +1,9 @@
 from pyspark.sql import SparkSession
+from pyspark.sql.avro.functions import from_avro, to_avro
 from pyspark.sql.functions import from_json, col
-from pyspark.sql.types import StructType, StructField, StringType, IntegerType
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DateType
+from confluent_kafka.avro import CachedSchemaRegistryClient
+from schema_registry.client import SchemaRegistryClient
 
 spark = SparkSession.builder \
     .appName("KafkaToDeltaLake") \
@@ -9,6 +12,11 @@ spark = SparkSession.builder \
 
 kafka_bootstrap_servers = "kafka:9092"  # Replace with your Kafka brokers
 kafka_topic = "postgres.public.memberdetails"
+schema_registry_url = "http://schema-registry:8081"
+
+schema_registry_client = CachedSchemaRegistryClient({"url": schema_registry_url})
+kafka_topic_value_schema = schema_registry_client.get_latest_schema(f"{kafka_topic}-value")
+avro_schema = kafka_topic_value_schema.schema
 
 schema = StructType([
     StructField("Id", IntegerType(), False),
@@ -27,7 +35,7 @@ kafka_df = spark.readStream \
     .option("subscribe", kafka_topic) \
     .load()
 
-parsed_df = kafka_df.select(from_avro("value", schema).alias("data")).select("data.*")
+parsed_df = kafka_df.select(from_avro("value", avro_schema).alias("data")).select("data.*")
 
 delta_table_path = "deltalake_rti/test/"
 if not spark._jsparkSession.catalog().tableExists(delta_table_path):
