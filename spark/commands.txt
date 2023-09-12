@@ -1,1 +1,3 @@
 pyspark --jars hadoop-azure-3.2.1.jar,azure-storage-8.6.4.jar --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.4,org.apache.spark:spark-avro_2.12:3.2.4,io.confluent:kafka-avro-serializer:6.2.1,io.delta:delta-core_2.12:2.1.0 --repositories http://packages.confluent.io/maven/ --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog"
+
+pyspark --jars $(echo ./jars/*.jar | tr ' ' ',') --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog"
