@@ -17,11 +17,11 @@ builder = SparkSession.builder.appName("DebeziumCDCConsumer") \
 
 spark = configure_spark_with_delta_pip(builder).getOrCreate()
 spark.sparkContext.setLogLevel("ERROR")
-STORAGE_ACCOUNT = "realtimeingestion"
-ACCOUNT_KEY = "AKAr03HZgakLGk2CydRkuvA/y/1c7I/SiR//QCiLCknGRGdFRIIf+Tlsn88sXV/CTJ5XGLaOzgsx+AStW0IaWg=="
+STORAGE_ACCOUNT = "tcnusprint0sa01"
+ACCOUNT_KEY =  "+FKsmoNRxnkTVlBUR6Sk/sZ//q7SQNaBalagsfynYAyZyKM2UYJvW8pcHxs5ethJ6+Y15JXbF5AB+AStP6xuPg=="
 spark.conf.set(f"fs.azure.account.key.{STORAGE_ACCOUNT}.blob.core.windows.net",ACCOUNT_KEY)
 
-BASE_DIR = "wasbs://olas-data-extract@realtimeingestion.blob.core.windows.net/"
+BASE_DIR = "wasbs://test-container@realtimeingestion.blob.core.windows.net/"
         
 raw_stream = spark.readStream.format("kafka").option("kafka.bootstrap.servers", KAFKA_BROKER).option("subscribe", TOPIC_NAME).option("startingOffsets", "earliest").load()
 
