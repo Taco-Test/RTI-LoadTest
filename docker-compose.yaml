@@ -67,34 +67,60 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
 
   spark-master:
-    image: bitnami/spark:3.2.4
+    image: cluster-apache-spark:3.2.4
     ports:
-      - "8080:8080"
+      - "9093:8080"
       - "7077:7077"
     environment:
-      - "SPARK_MODE=master"
-      - "SPARK_CLASSPATH=/app/jars/*"
+      - "SPARK_WORKLOAD=master"
+      - "SPARK_LOCAL_IP=spark-master"
+      - "SPARK_CLASSPATH=/opt/jars/*"
     volumes:
-      - ./spark-data:/data   # Map the local directory to /data inside the container
-      - ./scripts:/app/scripts
-      - ./jars:/app/jars
-      
-  spark-worker:
-    image: bitnami/spark:3.2.4
+      - ./spark-data:/opt/spark-data   # Map the local directory to /data inside the container
+      - ./scripts:/opt/scripts
+      - ./jars:/opt/jars
+  spark-worker-a:
+    image: cluster-apache-spark:3.2.4
     depends_on:
       - spark-master
     environment:
-      - "SPARK_MODE=worker"
+      - "SPARK_WORKLOAD=worker"
       - "SPARK_MASTER_URL=spark://spark-master:7077"
       - "SPARK_WORKER_MEMORY=1G"
       - "SPARK_WORKER_CORES=1"
       - "SPARK_RDD_COMPRESS=true"
-      - "SPARK_CLASSPATH=/app/jars/*"
+      - "SPARK_DRIVER_MEMORY=1G"
+      - "SPARK_EXECUTOR_MEMORY=1G"
+      - "SPARK_LOCAL_IP=spark-worker-a"
+      - "SPARK_CLASSPATH=/opt/jars/*"
     ports:
-      - "8088:8088"
+      - "9094:8080"
+      - "7000:7000"
     volumes:
-      - ./spark-data:/data   # Map the local directory to /data inside the container
-      - ./scripts:/app/scripts
-      - ./jars:/app/jars
+      - ./spark-data:/opt/spark-data   # Map the local directory to /data inside the container
+      - ./scripts:/opt/scripts
+      - ./jars:/opt/jars
+  spark-worker-b:
+    image: cluster-apache-spark:3.2.4
+    depends_on:
+      - spark-master
+    environment:
+      - "SPARK_WORKLOAD=worker"
+      - "SPARK_MASTER_URL=spark://spark-master:7077"
+      - "SPARK_WORKER_MEMORY=1G"
+      - "SPARK_WORKER_CORES=1"
+      - "SPARK_RDD_COMPRESS=true"
+      - "SPARK_DRIVER_MEMORY=1G"
+      - "SPARK_EXECUTOR_MEMORY=1G"
+      - "SPARK_LOCAL_IP=spark-worker-b"
+      - "SPARK_CLASSPATH=/opt/jars/*"
+    ports:
+      - "9095:8080"
+      - "7001:7000"
+    volumes:
+      - ./spark-data:/opt/spark-data   # Map the local directory to /data inside the container
+      - ./scripts:/opt/scripts
+      - ./jars:/opt/jars
+
 volumes:
   pgdata:
