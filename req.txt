@@ -1,0 +1,7 @@
+confluent-kafka==2.2.0
+avro-python3==1.10.2
+kafka-python==2.0.2
+pyspark==3.4.1
+requests
+urllib3
+delta-spark
